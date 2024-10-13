@@ -1,22 +1,35 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigType } from '@nestjs/config';
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
 import { User } from '../../users/entities/user.entity';
 import { HashingService } from '../hashing/hashing.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { UserRole } from '../../users/types/UserRole';
+import jwtConfig from '../config/jwt.config';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly hashingService: HashingService,
+    private readonly jwtService: JwtService,
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
+
+  /**
+   *
+   * @param signUpDto
+   */
   async signUp(signUpDto: SignUpDto) {
     const { role } = signUpDto;
     if (role !== UserRole.ADMIN && role !== UserRole.USER) {
@@ -40,5 +53,38 @@ export class AuthenticationService {
     }
   }
 
-  signIn(signInDto: SignInDto) {}
+  /**
+   * @param signInDto
+   */
+  async signIn(signInDto: SignInDto) {
+    const user = await this.userRepository.findOneBy({
+      nickname: signInDto.nickname,
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User does not exist');
+    }
+    const isEqual = await this.hashingService.compare(
+      signInDto.password,
+      user.password,
+    );
+    if (!isEqual) {
+      throw new UnauthorizedException('Password does not match');
+    }
+
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        nickname: user.nickname,
+        role: user.role,
+      },
+      {
+        secret: this.jwtConfiguration.secret,
+      },
+    );
+
+    return {
+      accessToken,
+    };
+  }
 }
