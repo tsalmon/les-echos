@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from "typeorm";
+import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { HashingService } from './hashing/hashing.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
@@ -15,9 +15,11 @@ export class UsersService {
   ) {}
 
   findAll(paginationQuery: PaginationQueryDto) {
-    const { limit, offset, nickname ,name, comment, address, role } = paginationQuery;
+    const { limit, offset, nickname, name, comment, address, role } =
+      paginationQuery;
 
     return this.userRepository.find({
+      select: ['id', 'name', 'nickname', 'comment', 'address', 'role'],
       where: {
         nickname: nickname,
         name: name,
@@ -32,6 +34,7 @@ export class UsersService {
 
   async findOne(id: number) {
     const user = await this.userRepository.findOne({
+      select: ['id', 'name', 'nickname', 'comment', 'address', 'role'],
       where: { id },
     });
 
