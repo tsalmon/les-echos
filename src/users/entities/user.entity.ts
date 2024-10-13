@@ -21,6 +21,6 @@ export class User {
   @Column()
   password: string;
 
-  @Column('int')
-  role: UserRole;
+  @Column()
+  role: string;
 }
