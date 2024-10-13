@@ -10,10 +10,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../entities/user.entity';
 import { HashingService } from '../hashing/hashing.service';
 import { SignInDto } from './dto/sign-in.dto';
-import { UserRole } from '../../users/types/UserRole';
+import { UserRole } from '../types/UserRole';
 import jwtConfig from '../config/jwt.config';
 
 @Injectable()

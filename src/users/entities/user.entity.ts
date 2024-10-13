@@ -22,5 +22,5 @@ export class User {
   password: string;
 
   @Column()
-  role: UserRole;
+  role: string;
 }

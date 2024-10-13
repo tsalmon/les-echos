@@ -1,6 +1,6 @@
 import { IsEnum, IsIn, IsString } from "class-validator";
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../../../users/types/UserRole';
+import { UserRole } from '../../types/UserRole';
 
 export class SignUpDto {
   @ApiProperty({ description: 'pseudonyme', example: 'tsalmon' })
